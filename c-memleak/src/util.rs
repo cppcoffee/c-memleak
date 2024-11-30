@@ -1,10 +1,13 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use anyhow::{anyhow, bail, Context, Result};
 use libc::pid_t;
+use log::info;
 use tokio::fs::{self, OpenOptions};
 use tokio::io::AsyncWriteExt;
+use tokio::time::sleep;
 
 pub async fn get_binary_path_by_pid(pid: pid_t) -> Result<PathBuf> {
     let proc_path = format!("/proc/{}/exe", pid);
@@ -37,4 +40,15 @@ pub async fn dump_to_file(path: &Path, map: &HashMap<String, usize>) -> Result<(
     }
 
     Ok(())
+}
+
+pub async fn wait_for_termination_signal(timeout: u64) {
+    tokio::select! {
+        _ = tokio::signal::ctrl_c() => {
+            info!("received Ctrl-C, dump stack frames starting...")
+        },
+        _ = sleep(Duration::from_secs(timeout)) => {
+            info!("time is up, dump stack frames starting...")
+        }
+    }
 }
