@@ -1,0 +1,17 @@
+[package]
+name = "c-memleak-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+c-memleak-common = { path = "../c-memleak-common" }
+
+aya-ebpf = { workspace = true }
+aya-log-ebpf = { workspace = true }
+
+[build-dependencies]
+which = { workspace = true }
+
+[[bin]]
+name = "c-memleak"
+path = "src/main.rs"
