@@ -31,12 +31,12 @@ static TRACE_ALL: bool = false;
 pub fn malloc_enter(ctx: ProbeContext) -> u32 {
     match try_malloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_malloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let size: usize = ctx.arg(0).ok_or(-1)?;
+    let size: usize = ctx.arg(0).ok_or(1)?;
     gen_alloc_entry(&ctx, size)
 }
 
@@ -44,12 +44,12 @@ fn try_malloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn malloc_exit(ctx: RetProbeContext) -> u32 {
     match try_malloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_malloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -57,7 +57,7 @@ fn try_malloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn free_enter(ctx: ProbeContext) -> u32 {
     match try_free_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
@@ -70,13 +70,13 @@ fn try_free_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn calloc_enter(ctx: ProbeContext) -> u32 {
     match try_calloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_calloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let count: usize = ctx.arg(0).ok_or(-1)?;
-    let size: usize = ctx.arg(1).ok_or(-1)?;
+    let count: usize = ctx.arg(0).ok_or(1)?;
+    let size: usize = ctx.arg(1).ok_or(1)?;
 
     gen_alloc_entry(&ctx, count * size)
 }
@@ -85,12 +85,12 @@ fn try_calloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn calloc_exit(ctx: RetProbeContext) -> u32 {
     match try_calloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_calloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -98,13 +98,13 @@ fn try_calloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn realloc_enter(ctx: ProbeContext) -> u32 {
     match try_realloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_realloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.arg(0).ok_or(-1)?;
-    let size: usize = ctx.arg(1).ok_or(-1)?;
+    let ptr: u64 = ctx.arg(0).ok_or(1)?;
+    let size: usize = ctx.arg(1).ok_or(1)?;
 
     gen_free_enter(&ctx, ptr)?;
     gen_alloc_entry(&ctx, size)
@@ -114,12 +114,12 @@ fn try_realloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn realloc_exit(ctx: RetProbeContext) -> u32 {
     match try_realloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_realloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -127,13 +127,13 @@ fn try_realloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn mmap_enter(ctx: ProbeContext) -> u32 {
     match try_mmap_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_mmap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    //let addr: u64 = ctx.arg(0).ok_or(-1)?;
-    let len: usize = ctx.arg(1).ok_or(-1)?;
+    //let addr: u64 = ctx.arg(0).ok_or(1)?;
+    let len: usize = ctx.arg(1).ok_or(1)?;
     gen_alloc_entry(&ctx, len)
 }
 
@@ -141,12 +141,12 @@ fn try_mmap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn mmap_exit(ctx: RetProbeContext) -> u32 {
     match try_mmap_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_mmap_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -154,12 +154,12 @@ fn try_mmap_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn munmap_enter(ctx: ProbeContext) -> u32 {
     match try_munmap_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_munmap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let addr: u64 = ctx.arg(0).ok_or(-1)?;
+    let addr: u64 = ctx.arg(0).ok_or(1)?;
     gen_free_enter(&ctx, addr)
 }
 
@@ -167,14 +167,14 @@ fn try_munmap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn mremap_enter(ctx: ProbeContext) -> u32 {
     match try_mremap_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_mremap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let old_addr: u64 = ctx.arg(0).ok_or(-1)?;
-    //let old_size: usize = ctx.arg(1).ok_or(-1)?;
-    let new_size: usize = ctx.arg(2).ok_or(-1)?;
+    let old_addr: u64 = ctx.arg(0).ok_or(1)?;
+    //let old_size: usize = ctx.arg(1).ok_or(1)?;
+    let new_size: usize = ctx.arg(2).ok_or(1)?;
 
     gen_free_enter(&ctx, old_addr)?;
     gen_alloc_entry(&ctx, new_size)
@@ -184,12 +184,12 @@ fn try_mremap_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn mremap_exit(ctx: RetProbeContext) -> u32 {
     match try_mremap_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_mremap_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let new_addr: u64 = ctx.ret().ok_or(-1)?;
+    let new_addr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, new_addr)
 }
 
@@ -197,14 +197,14 @@ fn try_mremap_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn posix_memalign_enter(ctx: ProbeContext) -> u32 {
     match try_posix_memalign_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_posix_memalign_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let memptr: u64 = ctx.arg(0).ok_or(-1)?;
-    //let alignment: usize = ctx.arg(1).ok_or(-1)?;
-    let size: usize = ctx.arg(2).ok_or(-1)?;
+    let memptr: u64 = ctx.arg(0).ok_or(1)?;
+    //let alignment: usize = ctx.arg(1).ok_or(1)?;
+    let size: usize = ctx.arg(2).ok_or(1)?;
 
     let tid = bpf_get_current_pid_tgid() as u32;
     MEMPTRS.insert(&tid, &memptr, 0)?;
@@ -216,17 +216,14 @@ fn try_posix_memalign_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn posix_memalign_exit(ctx: RetProbeContext) -> u32 {
     match try_posix_memalign_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_posix_memalign_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
     let tid = bpf_get_current_pid_tgid() as u32;
 
-    let memptr = match unsafe { MEMPTRS.get(&tid) } {
-        Some(ptr) => ptr,
-        None => return Ok(0),
-    };
+    let memptr = unsafe { MEMPTRS.get(&tid) }.ok_or(0)?;
     MEMPTRS.remove(&tid)?;
 
     let addr = match unsafe { bpf_probe_read_user(*memptr as *const c_void) } {
@@ -241,13 +238,13 @@ fn try_posix_memalign_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn aligned_alloc_enter(ctx: ProbeContext) -> u32 {
     match try_aligned_alloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_aligned_alloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    //let alignment: usize = ctx.arg(0).ok_or(-1)?;
-    let size: usize = ctx.arg(1).ok_or(-1)?;
+    //let alignment: usize = ctx.arg(0).ok_or(1)?;
+    let size: usize = ctx.arg(1).ok_or(1)?;
     gen_alloc_entry(&ctx, size)
 }
 
@@ -255,12 +252,12 @@ fn try_aligned_alloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn aligned_alloc_exit(ctx: RetProbeContext) -> u32 {
     match try_aligned_alloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_aligned_alloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -268,12 +265,12 @@ fn try_aligned_alloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn valloc_enter(ctx: ProbeContext) -> u32 {
     match try_valloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_valloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let size: usize = ctx.arg(0).ok_or(-1)?;
+    let size: usize = ctx.arg(0).ok_or(1)?;
     gen_alloc_entry(&ctx, size)
 }
 
@@ -281,12 +278,12 @@ fn try_valloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn valloc_exit(ctx: RetProbeContext) -> u32 {
     match try_valloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_valloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -294,13 +291,13 @@ fn try_valloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn memalign_enter(ctx: ProbeContext) -> u32 {
     match try_memalign_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_memalign_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    //let alignment: usize = ctx.arg(0).ok_or(-1)?;
-    let size: usize = ctx.arg(1).ok_or(-1)?;
+    //let alignment: usize = ctx.arg(0).ok_or(1)?;
+    let size: usize = ctx.arg(1).ok_or(1)?;
     gen_alloc_entry(&ctx, size)
 }
 
@@ -308,12 +305,12 @@ fn try_memalign_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn memalign_exit(ctx: RetProbeContext) -> u32 {
     match try_memalign_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_memalign_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
@@ -321,12 +318,12 @@ fn try_memalign_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
 pub fn pvalloc_enter(ctx: ProbeContext) -> u32 {
     match try_pvalloc_enter(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_pvalloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
-    let size: usize = ctx.arg(0).ok_or(-1)?;
+    let size: usize = ctx.arg(0).ok_or(1)?;
     gen_alloc_entry(&ctx, size)
 }
 
@@ -334,12 +331,12 @@ fn try_pvalloc_enter(ctx: ProbeContext) -> Result<u32, c_long> {
 pub fn pvalloc_exit(ctx: RetProbeContext) -> u32 {
     match try_pvalloc_exit(ctx) {
         Ok(rc) => rc,
-        Err(_) => 1,
+        Err(rc) => rc as u32,
     }
 }
 
 fn try_pvalloc_exit(ctx: RetProbeContext) -> Result<u32, c_long> {
-    let ptr: u64 = ctx.ret().ok_or(-1)?;
+    let ptr: u64 = ctx.ret().ok_or(1)?;
     gen_alloc_exit(&ctx, ptr)
 }
 
